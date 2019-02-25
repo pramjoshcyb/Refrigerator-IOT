@@ -1,33 +1,33 @@
 #!/usr/bin/python3
-"""
+""" # doc string which gives details about the rpc server which runs a service, also info regarding the code its using and port its connecting to
 classic rpyc server (threaded, forking or std) running a SlaveService
 usage:
     rpyc_classic.py                         # default settings
     rpyc_classic.py -m forking -p 12345     # custom settings
 
-    # ssl-authenticated server (keyfile and certfile are required)
-    rpyc_classic.py --ssl-keyfile keyfile.pem --ssl-certfile certfile.pem --ssl-cafile cafile.pem
+    # ssl-authenticated server (keyfile and certfile are required) # establish a SSL certificate which makes sure the connection between the client and server is secure
+    rpyc_classic.py --ssl-keyfile keyfile.pem --ssl-certfile certfile.pem --ssl-cafile cafile.pem # defined a cert?
 """
-import sys
-import os
-import rpyc
-from plumbum import cli
-from rpyc.utils.server import ThreadedServer, ForkingServer, OneShotServer
-from rpyc.utils.classic import DEFAULT_SERVER_PORT, DEFAULT_SERVER_SSL_PORT
-from rpyc.utils.registry import REGISTRY_PORT
-from rpyc.utils.registry import UDPRegistryClient, TCPRegistryClient
-from rpyc.utils.authenticators import SSLAuthenticator
-from rpyc.lib import setup_logger
-from rpyc.core import SlaveService
+import sys # import the sys library which specifies the parameters and functions
+import os # import the operating system library, allows to talk to the os that python is on
+import rpyc # remote objects to be manipulated 
+from plumbum import cli # from plumbum is a lib for shell script programs which imports the command line interface or tools
+from rpyc.utils.server import ThreadedServer, ForkingServer, OneShotServer # from the rpyc server import the thread server, fork and one short server
+from rpyc.utils.classic import DEFAULT_SERVER_PORT, DEFAULT_SERVER_SSL_PORT # from rpyc utilities it is importing the features for the server and its normal and SSL Ports
+from rpyc.utils.registry import REGISTRY_PORT # imports the registry port
+from rpyc.utils.registry import UDPRegistryClient, TCPRegistryClient # imports the UDP protocol client and TCP Protocol client
+from rpyc.utils.authenticators import SSLAuthenticator # imports the SSL authentication for verification
+from rpyc.lib import setup_logger # imports the set up logger feature to  examine log files?
+from rpyc.core import SlaveService # imports the slave service ?
 
 
 
-class ClassicServer(cli.Application):
-    mode = cli.SwitchAttr(["-m", "--mode"], cli.Set("threaded", "forking", "stdio", "oneshot"),
+class ClassicServer(cli.Application): # defines method ClassicServer and passes in argument cmd line interface Application
+    mode = cli.SwitchAttr(["-m", "--mode"], cli.Set("threaded", "forking", "stdio", "oneshot"), # var mode with cli 
         default = "threaded", help = "The serving mode (threaded, forking, or 'stdio' for "
         "inetd, etc.)")
 
-    port = cli.SwitchAttr(["-p", "--port"], cli.Range(0, 65535), default = None,
+    port = cli.SwitchAttr(["-p", "--port"], cli.Range(0, 65535), default = None, 
         help="The TCP listener port (default = %s, default for SSL = %s)" %
             (DEFAULT_SERVER_PORT, DEFAULT_SERVER_SSL_PORT), group = "Socket Options")
     host = cli.SwitchAttr(["--host"], str, default = "", help = "The host to bind to. "
