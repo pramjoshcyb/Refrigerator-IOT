@@ -8,7 +8,7 @@ import rpyc # importing remote procedure call
 
 class RefrigeratorUI(): # creating a class called RefrigeratorUI 
                 # init is a reserved method in python classes, called when an object is created from the class
-    def __init__(self): # self represents instance of class DonutUI, which allows to access attributes and methods of class
+    def __init__(self): # self represents instance of class RefrigeratorUI, which allows to access attributes and methods of class
         self.app = QApplication([]) # initialises the window and constructs an app object
         # instance of the class attribute where app is a local var
         connect_panel = self.create_connect_panel() # declared a var and assigned the self instance for creating panel to it
