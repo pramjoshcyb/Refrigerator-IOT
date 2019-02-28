@@ -2,30 +2,31 @@ from PyQt5.Qt import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from drag_drop_container import *
 
 import rpyc # importing remote procedure call
 
 
-class RefrigeratorUI(): # creating a class called RefrigeratorUI 
+class RefrigeratorUI(QWidget): # creating a class called RefrigeratorUI 
                 # init is a reserved method in python classes, called when an object is created from the class
     def __init__(self): # self represents instance of class RefrigeratorUI, which allows to access attributes and methods of class
         self.app = QApplication([]) # initialises the window and constructs an app object
         # instance of the class attribute where app is a local var
-        connect_panel = self.create_connect_panel() # declared a var and assigned the self instance for creating panel to it
+        connect_panel = self.create_connect_panel() # creating a var called connect_panel and the attribute self.create_connect_panel of the QFrame type is being assigned
 
-        window = QWidget() # returns the window for the widget
-        layout = QVBoxLayout() # creates a layout for the IOT and qvboxlayout is an object which is added to the widget layout
-        layout.addWidget(connect_panel) # layout method is added to the addwidget 
-        window.setLayout(layout) #sets the qvboxlayout by calling it from the window method
-        window.show() #displays the window
+        connect_panel.hostname = None # something here relates to hint 2 and you got it!
+        dd_container = DragDropContainer() # variable that the instance of the DragDropContainer class is being added to
+        dd_container.add_child(connect_panel) # using the method dd_container.add_child to add the widget 
 
-
-        self.main_layout = layout
-
-        self.window = window
+        # this creates a main window out of the container
+        dd_container.show()
+        self.dd_container = dd_container
 
     def create_connect_panel(self): # method for create_connect_panel
-        panel = QFrame() # declared panel and assign QFrame widget 
+        """Creates a panel (a QFrame widget), puts content into it appropriate for
+        the connection panel, and returns the panel"""
+        # self.create_connect_panel()
+        panel = QFrame() # declared panel and assign QFrame widget
         panel.setFrameShape(QFrame.Panel) # frame for GUI panel
         layout = QVBoxLayout() # layout for the IOT 
         lbl_ip_address = QLabel('Enter IP address or hostname:') # label widget assigned to lbl_ip_address var 
@@ -36,12 +37,14 @@ class RefrigeratorUI(): # creating a class called RefrigeratorUI
         layout.addWidget(lbl_ip_address) # adds the layout to the widget by calling lbl_ip_add that has the label
         layout.addWidget(inp_ip_address)
         layout.addWidget(btn_connect)
+        
 
-        def connect(): # new method connect
+
+        def connect(): # new method connect #SET HOSTNAME TO NONE HERE?
             hostname = inp_ip_address.text() # declared hostname var and assigned the input of ip address to it
             connection = rpyc.classic.connect(hostname) # declared connection var and assigned the remote call to connect to the host
             device = connection.modules.__main__.my_device # declared device var and assigned the conn module to it 
-            self.add_device_panel(device) # self method to access attribute of the device 
+            self.add_device_panel(device, hostname) # self method to access attribute of the device 
 
         btn_connect.clicked.connect(connect) # when the link new device btn is clicked it connects to server
 
@@ -49,11 +52,11 @@ class RefrigeratorUI(): # creating a class called RefrigeratorUI
 
         return panel # returns the panel 
 
-    def add_device_panel(self, device): # new method that takes parameters self and device 
+    def add_device_panel(self, device, hostname): # new method that takes parameters self and device 
         panel = QFrame() # initiates the QFrame widget assigned to the panel of the GUI
         panel.setFrameShape(QFrame.Box) # panel method to set the frame shape in rectangle
         layout = QVBoxLayout()
-
+        panel.hostname = hostname
         lbl_name = QLabel('Device: ' + device.get_name()) # name of device label
         lbl_label = QLabel(device.get_label())
 
@@ -99,9 +102,16 @@ class RefrigeratorUI(): # creating a class called RefrigeratorUI
             layout.addWidget(lbl_value) # 
 
         panel.setLayout(layout)
-        self.main_layout.addWidget(panel)
+        self.dd_container.add_child(panel) # self attribute to call the container and add the widget of the QFrame type
 
 
 
     def run(self):
         self.app.exec_()
+
+        #app quitting
+        hostname_file = 'hostname.txt'
+        with open(hostname_file, 'w') as file_object:
+            file_object.write("")
+            for widget in self.dd_container.list_widgets(): # receives panels
+                print(widget.hostname) # once terminal is closed it should print out the hostnames, try to figure it out and then write to file
