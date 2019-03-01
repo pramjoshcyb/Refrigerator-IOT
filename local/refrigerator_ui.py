@@ -112,7 +112,8 @@ class RefrigeratorUI(QWidget): # creating a class called RefrigeratorUI
         #app quitting
         hostname_file = 'hostname.txt'
         with open(hostname_file, 'w') as file_object:
-            file_object.write("widget.hostname")
             for widget in self.dd_container.list_widgets(): # receives panels
                 print(widget.hostname) # once terminal is closed it should print out the hostnames, try to figure it out and then write to file
-            
+                if widget.hostname is not None
+                    file_object.write(widget.hostname)
+                    
