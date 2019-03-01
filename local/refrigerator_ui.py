@@ -10,6 +10,7 @@ import rpyc # importing remote procedure call
 class RefrigeratorUI(QWidget): # creating a class called RefrigeratorUI 
                 # init is a reserved method in python classes, called when an object is created from the class
     def __init__(self): # self represents instance of class RefrigeratorUI, which allows to access attributes and methods of class
+        """initialises the method and assigns hostname"""
         self.app = QApplication([]) # initialises the window and constructs an app object
         # instance of the class attribute where app is a local var
         connect_panel = self.create_connect_panel() # creating a var called connect_panel and the attribute self.create_connect_panel of the QFrame type is being assigned
@@ -21,6 +22,22 @@ class RefrigeratorUI(QWidget): # creating a class called RefrigeratorUI
         # this creates a main window out of the container
         dd_container.show()
         self.dd_container = dd_container
+
+        hostname_file = 'hostname.txt'
+        with open(hostname_file) as file_object:
+            readlines = file_object.readlines() 
+            for line in readlines:
+                hostname = line.strip()
+                connection = rpyc.classic.connect(hostname)
+                device = connection.modules.__main__.my_device
+                self.add_device_panel(device, hostname)
+            print(readlines)
+
+
+        #for lineread in readlines:
+
+        # for readfile in add_device_panel:
+
 
     def create_connect_panel(self): # method for create_connect_panel
         """Creates a panel (a QFrame widget), puts content into it appropriate for
@@ -115,11 +132,8 @@ class RefrigeratorUI(QWidget): # creating a class called RefrigeratorUI
             for widget in self.dd_container.list_widgets(): # receives panels
                 print(widget.hostname) # once terminal is closed it should print out the hostnames, try to figure it out and then write to file
                 if widget.hostname is not None:
-                    file_object.write(widget.hostname)
-        with open(hostname_file, 'r') as file_object:
-                print(widget.hostname)
-                if widget.hostname is not None:
-                    readhost = file_object.readlines(widget.hostname)
+                    file_object.write(widget.hostname+'\n')
+        
                 
 
                     
